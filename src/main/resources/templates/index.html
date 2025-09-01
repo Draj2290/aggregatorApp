@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+          background-color: lightblue;
+        }
+
+        h1,h2,h3,h4,h5,h6 {
+
+          font-family: Lucida Console;
+          color: white;
+          text-align: center;
+        }
+
+        p {
+          font-family: Lucida Console;
+          font-size: 20px;
+        }
+
+        td{
+          font-family: Lucida Console;
+          color: black;
+          text-align: left;
+          border: 1px solid;
+        }
+        th {
+          height: 70px;
+        }
+        table{
+            width: 100%;
+        }
+
+        .displayOnNeed {
+            display:none;
+        }
+        #navigator {
+            display: flex;
+            flex-direction: column;
+        }
+        #aboutMe {
+            display: flex;
+            flex: 1;
+        }
+
+        .menu{
+           font-family: Lucida Console;
+           font-size: 20px;
+           color: white;
+           background-color: blue;
+
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <title></title>
+</head>
+<body>
+    <div ng-app="aggregatorApp" ng-controller="rootController">
+    <h1>Welcome to My Personal Project</h1>
+    <div name="navigator">
+    <table>
+        <tr>
+            <td><button class="menu" ng-click="newsArticles()">News & Articles</button></td>
+            <td><button class="menu" ng-click="aiPage()">AI suggestions</button></td>
+            <td><button class="menu" ng-click="aboutMe()">About Me</button></td>
+        </tr>
+    </table>
+    </div>
+    <div name="aboutMe" ng-style="homeStyle">
+        <h3>Hello My Name is Dheeraj Reddy Madannagari! Please browse around this page.
+        </h3><br>
+        <h3>This page is built on AngularJS as the view technology with Backend in Java Spring Boot deployed in Google Kubernetes Engine in GCP.</h3><br>
+        <h3>email: dheeraj2290@yahoo.com</h3>
+    </div>
+    <div name="feed" class="displayOnNeed"
+    ng-init="newsfeeds= [
+        {
+            source: 'CNBC',
+            feeds: [
+                {
+                    imgSrc: null,
+                    description: 'With time, and IPOs, many of todays private AI fortunes will eventually become more liquid, providing a historic opportunity for wealth management firms',
+                    href: 'https://www.cnbc.com/2025/08/10/ai-artificial-intelligence-billionaires-wealth.html',
+                    title: 'AI is creating new billionaires at a record pace'
+                }
+            ]
+        }]" ng-style="feedStyle">
+        <table border="1">
+            <tbody>
+            <tr ng-repeat="Feed in newsfeeds">
+                <td>
+                    <h3>{{Feed.source}}</h3>
+                    <br>
+                </td>
+
+                <td>
+                    <table>
+                        <tr ng-repeat="FeedEntry in Feed.feeds">
+                            <td><a ng-href="{{FeedEntry.href}}" target="_blank">{{FeedEntry.title}}</a></td>
+                            <td><p ng-bind="FeedEntry.description"></p></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div name="aisuggestions" class="displayOnNeed"
+         ng-init="rssSubscriptionList=[{name:'SampleNews',url:'https://www.news.com'}];
+                 suggestionsList=[{url:'https://ai.news.com',description:'sample ai response'}]" ng-style="aiStyle">
+
+        <table border="1">
+            <tbody>
+            <tr><td><h3>Current subscriptions</h3></td></tr>
+            <tr>
+                <td>
+                    <table>
+                        <tr ng-repeat="Subscription in rssSubscriptionList">
+                            <td>{{Subscription.name}}</td>
+                            <td>{{Subscription.url}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Get AI Suggestions: (May take a minute to load)</h3><br>
+                    <form>
+                        <input type="text"  ng-model="aiRequestBody"><br>
+                        <input type="submit" value="Get Suggestions" ng-click="requestAI()"/>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3>Suggestions from AI:</h3><br/>
+                    <table>
+                        <tr ng-repeat="Suggestion in suggestionsList">
+                            <td>{{Suggestion.url}}</td>
+                            <td>{{Suggestion.description}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h3> Add subscription</h3><br>
+                    <form>
+                        <p>Title: <input type="text"  ng-model="nameAdd" /><br></p>
+                        <p>Link: <input type="text"  ng-model="linkAdd" /><br></p>
+                        <input type="submit" value="Add" ng-click="addSubscription()"/>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+    <script>
+        var app=angular.module('aggregatorApp',[]);
+        app.controller('rootController',function($scope,$http){
+
+                $scope.feedStyle={
+                     'display':'none',
+                };
+                $scope.aiStyle={
+                      'display': 'none'
+                };
+
+            $scope.newsArticles=function(){
+
+                $http.get("feed").then(function(response){
+                    var jsonString=JSON.stringify(response.data);
+
+                    console.log(jsonString);
+                    $scope.newsfeeds=JSON.parse(jsonString).rssforThisNews;
+                });
+
+                $scope.feedStyle={
+                     'display':'flex',
+                     'flex':'1'
+                };
+                $scope.homeStyle={
+                      'display': 'none'
+                };
+                $scope.aiStyle={
+                      'display': 'none'
+                };
+
+            }
+
+            $scope.requestAI=function(){
+                var requestBody=$scope.aiRequestBody;
+                $http.post("getsuggestions",requestBody).then(function(response){
+                        var jsonString=JSON.stringify(response.data);
+                        $scope.suggestionsList=JSON.parse(jsonString).feed;
+                    }
+                );
+            }
+
+            $scope.addSubscription=function(){
+                var parameters={
+                    params : {
+                       title: "t",
+                       href: "h"
+                    }
+                };
+                parameters.params.title=$scope.nameAdd;
+                parameters.params.href=$scope.linkAdd;
+                $http.post("addsubscription","",parameters).then(function(response){
+                    console.log(JSON.stringify(response.data));
+                });
+
+                $http.get("subscriptions").then(function(response){
+                    var jsonString=JSON.stringify(response.data);
+                    $scope.rssSubscriptionList=JSON.parse(jsonString);
+                });
+            }
+
+            $scope.aiPage=function(){
+                 $http.get("subscriptions").then(function(response){
+                    var jsonString=JSON.stringify(response.data);
+                    $scope.rssSubscriptionList=JSON.parse(jsonString);
+                });
+                $scope.feedStyle={
+                     'display':'none',
+                };
+                $scope.homeStyle={
+                      'display': 'none'
+                };
+                $scope.aiStyle={
+                      'display': 'flex',
+                      'flex': '1'
+                };
+            }
+
+            $scope.aboutMe=function(){
+
+                $scope.feedStyle={
+                     'display':'none',
+                };
+                $scope.homeStyle={
+                      'display': 'block',
+                };
+                $scope.aiStyle={
+                      'display': 'none'
+                };
+            }
+
+        });
+    </script>
+</body>
+</html>

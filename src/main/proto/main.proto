@@ -1,0 +1,16 @@
+syntax="proto3";
+
+option java_package="personal.project.aggregator.grpc";
+option java_outer_classname  = "StreamServiceProto";
+
+message VideoFileRequest {
+  string name = 1;
+}
+
+message  StreamResponse{
+  bytes content = 1;
+}
+
+service StreamService {
+  rpc getVideo (VideoFileRequest) returns (stream StreamResponse);
+}
