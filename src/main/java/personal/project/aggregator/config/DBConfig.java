@@ -16,8 +16,7 @@ import personal.project.aggregator.repository.SubscriptionRepository;
 import javax.sql.DataSource;
 @Configuration
 @EnableJpaRepositories(basePackageClasses = SubscriptionRepository.class,
-        entityManagerFactoryRef = "localVideoTM",
-        transactionManagerRef = "jpaTransactionManager"
+        entityManagerFactoryRef = "localVideoTM"
 )
 public class DBConfig {
 
@@ -39,11 +38,11 @@ public class DBConfig {
 
     }
 
-    @Bean(name="jpaTransactionManager")
-    public JpaTransactionManager jpaTransactionManager(@Qualifier("localVideoTM") LocalContainerEntityManagerFactoryBean e){
-        JpaTransactionManager jpa= new JpaTransactionManager();
-        jpa.setEntityManagerFactory(e.getObject());
-        return jpa;
-    }
+//    @Bean(name="jpaTransactionManager")
+//    public JpaTransactionManager jpaTransactionManager(@Qualifier("localVideoTM") LocalContainerEntityManagerFactoryBean e){
+//        JpaTransactionManager jpa= new JpaTransactionManager();
+//        jpa.setEntityManagerFactory(e.getObject());
+//        return jpa;
+//    }
 
 }

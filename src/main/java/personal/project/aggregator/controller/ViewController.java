@@ -15,10 +15,14 @@ import java.io.IOException;
 public class ViewController {
 
     @GetMapping(value={"index.html","index","home"})
-    public String homePage(){
+    public String homePage() {
         return "index";
     }
 
+    @GetMapping(value="/healthcheck")
+    public void healthCheck(HttpServletResponse response){
+        response.setStatus(200);
+    }
 //    @GetMapping("/getvideo/{fileName}")
 //    public void streamVideo(@PathVariable("fileName") String fileName, HttpServletResponse servletResponse){
 //
