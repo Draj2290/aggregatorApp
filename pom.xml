@@ -116,9 +116,14 @@
 			<version>1.16.1</version>
 		</dependency>
 		<dependency>
-			<groupId>personal.project</groupId>
-			<artifactId>grpc</artifactId>
-			<version>1.0</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>2.2.224</version>
+			<!-- Use <scope>test</scope> for testing or <scope>runtime</scope> for embedded use in production -->
 		</dependency>
 
 	</dependencies>

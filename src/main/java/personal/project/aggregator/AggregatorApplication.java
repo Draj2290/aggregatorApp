@@ -3,7 +3,10 @@ package personal.project.aggregator;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import jakarta.websocket.DeploymentException;
+import org.jsoup.Connection;
 import org.springframework.ai.model.openai.autoconfigure.*;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -15,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -30,10 +34,7 @@ import java.util.concurrent.TimeUnit;
 		org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration.class
 		})
 public class AggregatorApplication {
-
-
-	public static String secretkey="InfinitiQ#50";
-	public static void main(String[] args) throws DeploymentException, IOException, InterruptedException {
+	public static void main(String[] args) {
 		SpringApplication.run(AggregatorApplication.class, args);
 	}
 

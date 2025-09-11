@@ -19,7 +19,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.xml.sax.InputSource;
+import personal.project.aggregator.entities.Subscription;
 import personal.project.aggregator.models.*;
+import personal.project.aggregator.repository.SubscriptionRepository;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,12 +37,11 @@ import java.util.Map;
 @RestController
 public class RSSController {
 
-
     @Autowired
     RSSCacheNew rssCacheNew;
 
     @Autowired
-    RSSSubscriptions rssSubscriptions;
+    SubscriptionRepository subscriptionRepository;
 
     private static final String promptText="Give me RSS Feed suggestions with only the URL and description in JSON format such as {\"feed\":[{\"url\":\"https://feed...\",\"description\":\"text\"}]} with description or tags: <descriptionOrTags> (Only send me links which actually lead to RSS feed document not an HTML document";
     @Autowired
@@ -57,9 +58,9 @@ public class RSSController {
         Map<String,String> defaultSubs=new HashMap<>();
         defaultSubs.put("CNBC","https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114");
         defaultSubs.put("MarketWatch","https://feeds.content.dowjones.io/public/rss/mw_topstories");
-        rssSubscriptions.setSubscriptions(defaultSubs);
 
-        rssSubscriptions.getSubscriptions().forEach((k,v)->{
+        defaultSubs.forEach((k,v)->{
+            subscriptionRepository.save(new Subscription(k,v));
             try(InputStream inputStream=getInputStream(v)) {
 
                 SyndFeedInput syndFeedInput1=new SyndFeedInput();
@@ -93,8 +94,9 @@ public class RSSController {
 
     public void loadRSSCache(){
         rssCacheNew.setRSSForThisNews(new ArrayList<RSSFeedNew>());
-        rssSubscriptions.getSubscriptions().forEach((k,v)->{
-            try(InputStream inputStream=getInputStream(v)) {
+        List<Subscription> subscriptions=subscriptionRepository.findAll();
+        subscriptions.forEach(subscription->{
+            try(InputStream inputStream=getInputStream(subscription.getUrl())) {
 
                 SyndFeedInput syndFeedInput1=new SyndFeedInput();
                 SyndFeed currentFeed=syndFeedInput1.build(new InputSource(inputStream));
@@ -109,9 +111,9 @@ public class RSSController {
                     listOfFeedsForK.add(entry);
                 });
                 if(rssCacheNew.getRSSForThisNews()==null) {
-                    rssCacheNew.setRSSForThisNews(List.of(new RSSFeedNew(k, listOfFeedsForK)));
+                    rssCacheNew.setRSSForThisNews(List.of(new RSSFeedNew(subscription.getName(), listOfFeedsForK)));
                 }else {
-                    rssCacheNew.getRSSForThisNews().add(new RSSFeedNew(k, listOfFeedsForK));
+                    rssCacheNew.getRSSForThisNews().add(new RSSFeedNew(subscription.getName(), listOfFeedsForK));
                 }
 
             } catch (IOException e) {
@@ -133,12 +135,8 @@ public class RSSController {
     }
 
     @GetMapping(value="subscriptions",produces={"application/json"})
-    public List<RSSSubscription> rssSubscriptionList(){
-        List<RSSSubscription> rssSubscriptionList=
-                new ArrayList<>();
-        rssSubscriptions.getSubscriptions().forEach((k,v)->{
-           rssSubscriptionList.add(new RSSSubscription(k,v));
-        });
+    public List<Subscription> rssSubscriptionList(){
+        List<Subscription> rssSubscriptionList=subscriptionRepository.findAll();
         return rssSubscriptionList;
     }
 
@@ -172,7 +170,7 @@ public class RSSController {
 
     @PostMapping(value="addsubscription",produces="application/json")
     public String addSubscription(@RequestParam("title") String title, @RequestParam("href") String href ) {
-        rssSubscriptions.getSubscriptions().put(title,href);
+        subscriptionRepository.save(new Subscription(title,href));
         return "{\"message\":\"Successfully added\"}";
     }
 
