@@ -7,10 +7,13 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.KeyStore;
@@ -26,11 +29,10 @@ public class AIConfig {
 
     @Value("${string-of-crypto}")
     String cryptoString;
-
     @Bean
-    OpenAiChatModel openAiChatModel(){
+    OpenAiChatModel openAiChatModel() throws IOException {
         String code="1234567890123456";
-        try(FileInputStream fis=new FileInputStream("src/main/resources/EncDec.jks")) {
+        try(FileInputStream fis=new FileInputStream(new File("EncDec.jks"))) {
             Cipher SecretKeyCipher=Cipher.getInstance("AES");
             SecretKeySpec spec=new SecretKeySpec(code.getBytes(StandardCharsets.UTF_8),"AES");
             SecretKeyCipher.init(Cipher.DECRYPT_MODE,spec);
